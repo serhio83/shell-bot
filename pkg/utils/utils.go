@@ -3,7 +3,8 @@ package utils
 import "bytes"
 
 // ancient magic =)
-const swasti = "\u5350"
+// const swasti = "\u5350"
+const swasti = "\u262d"
 const space = ` `
 
 //StringSplitter split \n & \r from byte slice & return string
