@@ -1,3 +1,5 @@
+export WORKDIR := $(shell pwd)
+export GO111MODULE=on
 APP?=shell-bot
 PORT?=9999
 RELEASE?=0.0.1
@@ -10,7 +12,10 @@ GOARCH?=amd64
 clean:
 	rm -f ${APP}
 
-build: clean
+deps:
+	go generate
+
+build: clean deps
 	CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build \
 	-ldflags "-s -w -X ${PROJECT}/version.Release=${RELEASE} \
 	-X ${PROJECT}/version.Commit=${COMMIT} -X ${PROJECT}/version.BuildTime=${BUILD_TIME}" \
@@ -20,4 +25,8 @@ container: build
 	docker build -t $(APP):$(RELEASE) .
 
 run: container
-	docker run --name ${APP} -p ${PORT}:${PORT} --rm -e "PORT=${PORT}" $(APP):$(RELEASE)
+	docker run --name ${APP} -p ${PORT}:${PORT} --rm -e "PORT=${PORT}" -v $(WORKDIR)/.ssh:/root/.ssh $(APP):$(RELEASE)
+
+keys:
+	ssh-keygen -t rsa -b 4096 -f .ssh/id_rsa -q -N ""
+	ssh-copy-id -f -i .ssh/id_rsa root@gw.tp.fbs

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,18 +10,19 @@ import (
 	"syscall"
 
 	"github.com/serhio83/shell-bot/pkg/handlers"
+	"github.com/serhio83/shell-bot/pkg/utils"
 	"github.com/serhio83/shell-bot/pkg/version"
 )
 
 func main() {
-	log.Printf(
-		"Starting the service... commit: %s, build time: %s, release: %s",
+	log.Println(utils.StringDecorator(fmt.Sprintf(
+		"Starting the shell-bot. Commit: %s, build time: %s, release: %s",
 		version.Commit, version.BuildTime, version.Release,
-	)
+	)))
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		log.Fatal("Port is not set.")
+		log.Fatal(utils.StringDecorator("Port is not set"))
 	}
 
 	r := handlers.Router(version.BuildTime, version.Commit, version.Release)
@@ -43,21 +45,22 @@ func main() {
 			log.Printf("%v", err)
 		}
 	}()
-	log.Printf("The service is listen on http://0.0.0.0:%v/", port)
+	log.Println(utils.StringDecorator(
+		fmt.Sprintf("The shell-bot is listen on http://0.0.0.0:%v/", port)))
 
 	select {
 	case killSignal := <-interrupt:
 		switch killSignal {
 		case os.Interrupt:
-			log.Print("Got SIGINT...")
+			log.Println(utils.StringDecorator("Got SIGINT..."))
 		case syscall.SIGTERM:
-			log.Print("Got SIGTERM...")
+			log.Println(utils.StringDecorator("Got SIGTERM..."))
 		}
 	case <-shutdown:
-		log.Printf("Got an error...")
+		log.Println(utils.StringDecorator("Got an error..."))
 	}
 
-	log.Print("The service is shutting down...")
+	log.Println(utils.StringDecorator("The shell-bot is shutting down..."))
 	srv.Shutdown(context.Background())
-	log.Print("Done")
+	log.Println(utils.StringDecorator("Done"))
 }
