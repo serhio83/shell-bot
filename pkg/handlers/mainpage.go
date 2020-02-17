@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"strings"
 
-	structs "github.com/serhio83/shell-bot/pkg/structs"
-	utils "github.com/serhio83/shell-bot/pkg/utils"
+	"github.com/serhio83/shell-bot/pkg/structs"
+	"github.com/serhio83/shell-bot/pkg/utils"
 )
 
 // returns a simple HTTP handler function which writes a response.
@@ -80,7 +80,7 @@ func mainpage() http.HandlerFunc {
 						msg.Alerts[0].Labels.Alertname,
 						r.Header.Get("User-Agent"))))
 
-			log.Println(utils.StringDecorator("[ok] " + utils.StringSplitter(stderr)))
+			log.Println(utils.StringDecorator("[ssh.exec] " + utils.StringSplitter(stderr)))
 
 			// give responce to client
 			w.Header().Set("Content-Type", "application/json")
