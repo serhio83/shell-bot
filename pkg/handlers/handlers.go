@@ -9,7 +9,7 @@ import (
 	utils "github.com/serhio83/shell-bot/pkg/utils"
 )
 
-//Router ...
+//Router return new mux.Router
 func Router(buildTime, commit, release string) *mux.Router {
 	isReady := &atomic.Value{}
 	isReady.Store(false)
