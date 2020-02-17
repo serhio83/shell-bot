@@ -3,7 +3,10 @@ package utils
 import "bytes"
 
 // ancient magic =)
-const swasti = "\u5350"
+// 534d/5350 swastika
+// 2744 snowflake
+// 2620 Skull And Crossbones
+const swasti = "\u2744"
 const space = ` `
 
 //StringSplitter split \n & \r from byte slice & return string
