@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os/exec"
+	"strings"
 
 	structs "github.com/serhio83/shell-bot/pkg/structs"
 	utils "github.com/serhio83/shell-bot/pkg/utils"
@@ -15,14 +16,16 @@ import (
 // returns a simple HTTP handler function which writes a response.
 func mainpage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		rHost := r.Host
-		rAddr := r.RemoteAddr
+		rHost := strings.Split(r.Host, ":")[0]
+		rAddr := strings.Split(r.RemoteAddr, ":")[0]
 
 		// check if Content-Type: application/json used and fail if not
 		ah := r.Header.Get("Content-Type")
 		if ah != "application/json" {
 			log.Println(utils.StringDecorator(
-				fmt.Sprintf("[error] %s %s you should use Content-Type: application/json", rHost, rAddr)))
+				fmt.Sprintf("%s - %s [400] you should use Content-Type: application/json",
+					rAddr,
+					rHost)))
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
@@ -30,7 +33,9 @@ func mainpage() http.HandlerFunc {
 		// fail if zero content length
 		if r.ContentLength == 0 {
 			log.Println(utils.StringDecorator(
-				fmt.Sprintf("[error] %s %s Invalid request payload", rHost, rAddr)))
+				fmt.Sprintf("%s - %s [400] Invalid request payload",
+					rAddr,
+					rHost)))
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
@@ -40,9 +45,9 @@ func mainpage() http.HandlerFunc {
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&msg); err != nil {
 			log.Println(utils.StringDecorator(
-				fmt.Sprintf("[error] %s %s can`t decode json payload: %v",
-					rHost,
+				fmt.Sprintf("%s - %s [400] can`t decode json payload: %v",
 					rAddr,
+					rHost,
 					err)))
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
@@ -58,9 +63,9 @@ func mainpage() http.HandlerFunc {
 			if errr != nil {
 				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 				log.Println(utils.StringDecorator(
-					fmt.Sprintf("[error] %s %s exec.Command failed: %v",
-						rHost,
+					fmt.Sprintf("%s - %s [400] exec.Command failed: %v",
 						rAddr,
+						rHost,
 						utils.StringSplitter(stderr))))
 				return
 			}
@@ -68,9 +73,9 @@ func mainpage() http.HandlerFunc {
 			// parse command execution result, split new line and write to log
 			log.Println(
 				utils.StringDecorator(
-					fmt.Sprintf("[ok] %s %s instance: %s, alertname: %s, UA: %s",
-						rHost,
+					fmt.Sprintf("%s - %s [200] instance: %s, alertname: %s, UA: %s",
 						rAddr,
+						rHost,
 						msg.Alerts[0].Labels.Instance,
 						msg.Alerts[0].Labels.Alertname,
 						r.Header.Get("User-Agent"))))
@@ -85,7 +90,9 @@ func mainpage() http.HandlerFunc {
 
 			// fail when no Alerts in payload
 			log.Println(utils.StringDecorator(
-				fmt.Sprintf("[error] %s %s bad json payload", rHost, rAddr)))
+				fmt.Sprintf("%s - %s [400] bad json payload",
+					rAddr,
+					rHost)))
 			http.Error(w, "bad json payload", http.StatusBadRequest)
 			return
 		}
