@@ -56,7 +56,7 @@ func mainpage() http.HandlerFunc {
 		// run remote ssh command if Alerts exists
 		if len(msg.Alerts) > 0 {
 			instanceHost := strings.Split(msg.Alerts[0].Labels.Instance, "://")[1]
-			if len(instanceHost) > 0 {
+			if len(instanceHost) > 0 && instanceHost != "eu.ptipasbf.com" {
 				var stderr bytes.Buffer
 				cmd := exec.Command("ssh", "-o StrictHostKeyChecking=no", instanceHost, "nginx -t && nginx -s reload")
 				cmd.Stderr = &stderr
@@ -85,6 +85,13 @@ func mainpage() http.HandlerFunc {
 
 				// give responce to client
 				w.WriteHeader(200)
+			} else {
+				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				log.Println(utils.StringDecorator(
+					fmt.Sprintf("%s - %s [400] wrong instanceHost",
+						rAddr,
+						rHost)))
+				return
 			}
 		} else {
 
