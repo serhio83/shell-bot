@@ -1,10 +1,12 @@
 # shell-bot
 
+Parses requests from Prometheus`s alertmanager
 kubernetes ready service
 
 #### build:
 
 ```
+make deps
 make build
 ```
 

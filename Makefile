@@ -1,5 +1,6 @@
 export WORKDIR := $(shell pwd)
 export GO111MODULE=on
+PREFIX?=serhio
 APP?=shell-bot
 PORT?=9999
 RELEASE?=0.0.1
@@ -15,18 +16,21 @@ clean:
 deps:
 	go generate
 
-build: clean deps
+build: clean
 	CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build \
 	-ldflags "-s -w -X ${PROJECT}/version.Release=${RELEASE} \
 	-X ${PROJECT}/version.Commit=${COMMIT} -X ${PROJECT}/version.BuildTime=${BUILD_TIME}" \
 	-o ${APP}
 
 container: build
-	docker build -t $(APP):$(RELEASE) .
+	docker build -t $(PREFIX)/$(APP):$(RELEASE) .
 
 run: container
-	docker run --name ${APP} -p ${PORT}:${PORT} --rm -e "PORT=${PORT}" -v $(WORKDIR)/.ssh:/root/.ssh $(APP):$(RELEASE)
+	docker run --name ${APP} -p ${PORT}:${PORT} --rm -e "PORT=${PORT}" -v $(WORKDIR)/.ssh:/root/.ssh $(PREFIX)/$(APP):$(RELEASE)
 
 keys:
 	ssh-keygen -t rsa -b 4096 -f .ssh/id_rsa -q -N ""
 	ssh-copy-id -f -i .ssh/id_rsa root@gw.tp.fbs
+
+push:
+	docker push $(PREFIX)/$(APP):$(RELEASE)
