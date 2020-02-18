@@ -5,7 +5,7 @@
       "status": "firing",
       "labels": {
         "alertname": "reload-nginx",
-        "instance": "https://eu.ptipasbf.com",
+        "instance": "https://somehost.com",
         "job": "blackbox",
         "monitor": "prom.somehost.com",
         "severity": "reload-nginx"

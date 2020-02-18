@@ -56,18 +56,23 @@ func mainpage() http.HandlerFunc {
 		// run remote ssh command if Alerts exists
 		if len(msg.Alerts) > 0 {
 			instanceHost := strings.Split(msg.Alerts[0].Labels.Instance, "://")[1]
-			if len(instanceHost) > 0 && instanceHost != "eu.ptipasbf.com" {
+			if len(instanceHost) > 0 && instanceHost != "somehost.com" {
 				var stderr bytes.Buffer
 				cmd := exec.Command("ssh", "-o StrictHostKeyChecking=no", instanceHost, "nginx -t && nginx -s reload")
 				cmd.Stderr = &stderr
 				errr := cmd.Run()
 				if errr != nil {
 					http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+					log.Println(
+						utils.StringDecorator(
+							fmt.Sprintf("%s - %s [400] instance: %s, alertname: %s, UA: %s",
+								rAddr,
+								rHost,
+								msg.Alerts[0].Labels.Instance,
+								msg.Alerts[0].Labels.Alertname,
+								r.Header.Get("User-Agent"))))
 					log.Println(utils.StringDecorator(
-						fmt.Sprintf("%s - %s [400] exec.Command failed: %v",
-							rAddr,
-							rHost,
-							utils.StringSplitter(stderr))))
+						"[ssh.exec] exec.Command failed: " + utils.StringSplitter(stderr)))
 					return
 				}
 

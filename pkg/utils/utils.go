@@ -3,7 +3,7 @@ package utils
 import "bytes"
 
 // ancient magic =)
-const swasti = "\u2388"
+const decSymbol = "\u2388"
 const space = ` `
 
 //StringSplitter split \n & \r from byte slice & return string
@@ -21,5 +21,5 @@ func StringSplitter(b bytes.Buffer) string {
 
 //StringDecorator join string with prerfix & postfix decorators
 func StringDecorator(s string) string {
-	return swasti + space + s + space + swasti
+	return decSymbol + space + s + space + decSymbol
 }
