@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	utils "github.com/serhio83/shell-bot/pkg/utils"
+	"github.com/serhio83/shell-bot/pkg/utils"
 )
 
 //Router return new mux.Router
@@ -21,7 +21,7 @@ func Router(buildTime, commit, release string) *mux.Router {
 	}()
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", mainpage())
+	r.HandleFunc("/", checkHeaders(mainpage))
 	r.HandleFunc("/home", home(buildTime, commit, release)).Methods("GET")
 	r.HandleFunc("/healthz", healthz)
 	r.HandleFunc("/readyz", readyz(isReady))
